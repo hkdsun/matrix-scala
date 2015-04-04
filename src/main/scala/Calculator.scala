@@ -11,18 +11,26 @@ object Calculator {
 }
 
 class Calculator extends Actor{
-  val log = Logging(context.system, this)
+  
+	val log = Logging(context.system, this)
 	var sum = 0
-	context.watch(sender)
-  def receive = {
+	var count = 0
+	val mini = context.actorOf(MiniCalculator.props, name = "miniCalculatorActor")
+	
+	def receive = {
     case Matrix(rows) => {
-			rows.map(x => context.actorOf(MiniCalculator.props, name = "miniCalculatorActor") ! x)
+			count = rows.length
+			rows.map(x => mini ! x)
     }
 		case x: Int => {
 			sum += x
-			println(sum)
+			count -= 1
+			println("calc sum = " + sum)
+			if(count<1) {
+				context.parent ! sum
+				context.stop(self)
+			}
 		}
-		case Terminated(sender) => println("they killed my mom")
     case _ => log.error("Didn't receive a matrix")
   }
 }
@@ -36,7 +44,7 @@ class MiniCalculator extends Actor{
 	def receive = {
 		case x: Vector[Int] => {
 			sender ! x.sum
-			println(x.sum)
+			println("mini calc sum = " + x.sum)
 		}
 		case _ => log.error("received garbage")
 	}

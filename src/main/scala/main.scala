@@ -20,8 +20,8 @@ class Dispatcher extends Actor{
 			println(x)
 			calculator ! mat
 		}
-		case x: Int => println(x)
-		case Terminated(calculator) => println("they killed him :(")
+		case x: Int => println("final value = " + x)
+		case Terminated(calculator) => context.system.shutdown
 		case _ => println("received garbage :(")
 	}
 }
@@ -37,5 +37,5 @@ object Main extends App{
 	val dispatcher = system.actorOf(Props[Dispatcher], name = "dispatcherActor")
 	val mat = makeMatrix
 	dispatcher ! mat
-	system.shutdown
+	system.awaitTermination
 }
