@@ -4,7 +4,6 @@ import akka.actor._
 import akka.actor.ActorSystem
 import akka.actor.Props
 import akka.event.Logging
-import main.scala.matrix.Matrix
 
 object Calculator {
 	def props = Props(new Calculator)
