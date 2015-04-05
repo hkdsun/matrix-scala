@@ -9,8 +9,11 @@ class TestMatrices extends FlatSpec with Matchers {
 		val mat32 = Matrix.empty addCol Seq(1,7,5) addCol Seq(10,6,8)
 		val mat27 = Matrix.empty addRow Seq(5,8,1,4,8,4,4) addRow Seq(4,1,2,8,1,5,7)
 		val identity3 = Matrix.empty addRow Seq(1,0,0) addRow Seq(0,1,0) addRow Seq(0,0,1)
+		val identity2 = Matrix.empty addRow Seq(1,0) addRow Seq(0,1)
 		val allzero3 = Matrix.empty addRow Seq(0,0,0) addRow Seq(0,0,0) addRow Seq(0,0,0)
 		val allzero32 = Matrix.empty addRow Seq(0,0) addRow Seq(0,0) addRow Seq(0,0)
+		val row4matrix = Matrix.empty addRow Seq(1,1,0,0)
+		val col4matrix = Matrix.empty addCol Seq(1,2,3,4)
 	}
 	
 	"getting columns" should "be sane" in {
@@ -26,7 +29,10 @@ class TestMatrices extends FlatSpec with Matchers {
 	"multiplication" should "work for base cases" in {
 		new TestMatrices {
 			(identity3 * mat32) should be (mat32)
+			(mat32 * identity2) should be (mat32)
 			(allzero3 * mat32) should be (allzero32)
+			(row4matrix * col4matrix) should be (Matrix.empty addCol Seq(3))
+			(col4matrix * row4matrix) should be (Matrix.empty addRow Seq(1,1,0,0) addRow Seq(2,2,0,0) addRow Seq(3,3,0,0) addRow Seq(4,4,0,0))
 		}		
 	}
 

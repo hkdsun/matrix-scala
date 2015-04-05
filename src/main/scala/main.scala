@@ -10,6 +10,7 @@ import akka.event.Logging
 import akka.pattern.ask
 
 import main.scala.Calculator._
+import scala.io.Source
 
 class Dispatcher extends Actor{
 	val calculator = context.actorOf(Calculator.props, name = "calculatorActor")
@@ -26,17 +27,24 @@ class Dispatcher extends Actor{
 	}
 }
 
+def fetchMatrices(i: Int) : Seq[Matrix] = {
+	var fileName = ""
+	if(i == 1) fileName = "/home/hormoz/development/matrix-scala/test_cases/matrices.dat"
+	require(!fileName.isEmpty, "bad test case")
+	val fileLines = io.Source.fromFile(fileName).getLines.toList
+	val stringList = fileLines.map(x => x.split(';').map(y => y.split(',')))
+	val matrixList = stringList.map(_.map(_.map(_.toInt)))
+	
+}
+
 
 object Main extends App{
 
-  def makeMatrix(): Matrix = {
-    Matrix.empty addCol (1 to 5) addRow Seq(10) addCol (20 to 25) addCol (31 to 36) addCol (15 to 20) addRow Seq(1, 1, 1, 1)
-  }
+  val mat1 = Matrix.empty addCol (1 to 5) addRow Seq(10) addCol (20 to 25) addCol (31 to 36) addCol (15 to 20) addRow Seq(1, 1, 1, 1)
 
 
 	val system = ActorSystem("MatrixSystem")
 	val dispatcher = system.actorOf(Props[Dispatcher], name = "dispatcherActor")
-	val mat = makeMatrix
-	dispatcher ! mat
+	dispatcher ! mat1
 	system.awaitTermination
 }
