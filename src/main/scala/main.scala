@@ -39,11 +39,11 @@ object Main extends App{
 
 	val identity = Matrix.empty addRow Seq(1,0,0) addRow Seq(0,1,0) addRow Seq(0,0,1)
 
-	val futures = groups map { matrices => Future { matrices.reduceLeft { (left,right) => left * right } } }
+	val futures = groups map { matrices => Future { matrices.reduce { (left,right) => left * right } } }
 	
 	val almostDone = Future.sequence(futures)
 	
-	val done = almostDone.map { matrices => matrices.reduceLeft { (left,right) => left * right } }
+	val done = almostDone.map { matrices => matrices.reduce { (left,right) => left * right } }
 
 	done onComplete {
 		case Success(result) => println(result.pretty)
