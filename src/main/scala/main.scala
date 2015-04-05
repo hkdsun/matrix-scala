@@ -1,14 +1,13 @@
 package main.scala
 
-import java.util.concurrent.TimeUnit
-
 import akka.util.Timeout
 import akka.actor._
 import akka.actor.ActorSystem
 import akka.actor.Props
 import akka.event.Logging
 import akka.pattern.ask
-import scala.concurrent.Future
+import scala.concurrent.{ Future, Promise, Await }
+import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.{ Failure, Success }
 
@@ -50,5 +49,6 @@ object Main extends App{
 		case Success(result) => println(result.pretty)
 		case Failure(error) => println(error)
 	}
-
+	
+	Await.result(done, 5000 millis)
 }
