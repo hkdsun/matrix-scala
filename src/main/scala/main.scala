@@ -8,9 +8,14 @@ import akka.actor.ActorSystem
 import akka.actor.Props
 import akka.event.Logging
 import akka.pattern.ask
+import scala.concurrent.Future
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.util.{ Failure, Success }
 
 import main.scala.Calculator._
 import scala.io.Source
+
+
 
 class Dispatcher extends Actor{
 	val calculator = context.actorOf(Calculator.props, name = "calculatorActor")
@@ -27,24 +32,46 @@ class Dispatcher extends Actor{
 	}
 }
 
-def fetchMatrices(i: Int) : Seq[Matrix] = {
-	var fileName = ""
-	if(i == 1) fileName = "/home/hormoz/development/matrix-scala/test_cases/matrices.dat"
-	require(!fileName.isEmpty, "bad test case")
-	val fileLines = io.Source.fromFile(fileName).getLines.toList
-	val stringList = fileLines.map(x => x.split(';').map(y => y.split(',')))
-	val matrixList = stringList.map(_.map(_.map(_.toInt)))
-	
-}
 
 
 object Main extends App{
+	def fetchMatrices(i: Int): Seq[Matrix] = {
+		def getTestDir = new java.io.File( "./test_cases/" ).getCanonicalPath
+		var fileName = ""
+		if(i == 1) fileName = getTestDir + "/matrices.dat"
+		//future test cases for i=2,3,...,n
+		require(!fileName.isEmpty, "bad test case")
+		val fileLines = io.Source.fromFile(fileName).getLines.toList
+		val stringList = fileLines.map(x => x.split(';').map(y => y.split(',')))
+		val intList = stringList.map(_.map(_.map(_.toInt)))
 
-  val mat1 = Matrix.empty addCol (1 to 5) addRow Seq(10) addCol (20 to 25) addCol (31 to 36) addCol (15 to 20) addRow Seq(1, 1, 1, 1)
+		for(matrix <- intList) yield matrix.foldLeft(Matrix.empty)((result,nextRow) => result addRow nextRow)
+	}
 
+	val seqOfMatrices = fetchMatrices(1)
 
-	val system = ActorSystem("MatrixSystem")
+/*************************************
+**      FUTURE IMPLEMENTATION				**
+*************************************/
+
+	val groups = seqOfMatrices.grouped(4)
+
+	val identity = Matrix.empty addRow Seq(1,0,0) addRow Seq(0,1,0) addRow Seq(0,0,1)
+
+	val futures = groups map { matrices => Future { matrices.reduceLeft { (left,right) => left * right } } }
+	
+	val almostDone = Future.sequence(futures)
+	
+	val done = almostDone.map { matrices => matrices.reduceLeft { (left,right) => left * right } }
+
+	done onComplete {
+		case Success(result) => println(result.pretty)
+		case Failure(error) => println(error)
+	}
+
+//TODO: Actor implementation
+	/**val system = ActorSystem("MatrixSystem")
 	val dispatcher = system.actorOf(Props[Dispatcher], name = "dispatcherActor")
 	dispatcher ! mat1
-	system.awaitTermination
+	system.awaitTermination**/
 }
