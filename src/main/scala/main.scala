@@ -12,7 +12,6 @@ import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.{ Failure, Success }
 
-import main.scala.Calculator._
 import scala.io.Source
 
 
