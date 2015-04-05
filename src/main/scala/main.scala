@@ -17,23 +17,6 @@ import scala.io.Source
 
 
 
-class Dispatcher extends Actor{
-	val calculator = context.actorOf(Calculator.props, name = "calculatorActor")
-	context.watch(calculator)
-	def receive = {
-		case mat: Matrix => {
-			val x = mat.pretty
-			println(x)
-			calculator ! mat
-		}
-		case x: Int => println("final value = " + x)
-		case Terminated(calculator) => context.system.shutdown
-		case _ => println("received garbage :(")
-	}
-}
-
-
-
 object Main extends App{
 	def fetchMatrices(i: Int): Seq[Matrix] = {
 		def getTestDir = new java.io.File( "./test_cases/" ).getCanonicalPath
@@ -69,9 +52,4 @@ object Main extends App{
 		case Failure(error) => println(error)
 	}
 
-//TODO: Actor implementation
-	/**val system = ActorSystem("MatrixSystem")
-	val dispatcher = system.actorOf(Props[Dispatcher], name = "dispatcherActor")
-	dispatcher ! mat1
-	system.awaitTermination**/
 }
