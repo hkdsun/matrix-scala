@@ -54,6 +54,7 @@ object Main extends App{
 **      FUTURE IMPLEMENTATION				**
 *************************************/
 
+/**
 	val groups = seqOfMatrices.grouped(4)
 
 	val identity = Matrix.empty addRow Seq(1,0,0) addRow Seq(0,1,0) addRow Seq(0,0,1)
@@ -67,11 +68,12 @@ object Main extends App{
 	done onComplete {
 		case Success(result) => println(result.pretty)
 		case Failure(error) => println(error)
-	}
+	}**/
+
 
 //TODO: Actor implementation
-	/**val system = ActorSystem("MatrixSystem")
+	val system = ActorSystem("MatrixSystem")
 	val dispatcher = system.actorOf(Props[Dispatcher], name = "dispatcherActor")
 	dispatcher ! mat1
-	system.awaitTermination**/
+	system.awaitTermination
 }
