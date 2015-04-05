@@ -19,16 +19,16 @@ import scala.io.Source
 
 class Dispatcher extends Actor{
 	val calculator = context.actorOf(Calculator.props, name = "calculatorActor")
+	val log = Logging(context.system, this)
 	context.watch(calculator)
 	def receive = {
-		case mat: Matrix => {
-			val x = mat.pretty
-			println(x)
-			calculator ! mat
+		case seqOfMatrices: Seq[Matrix] => {
+			val groups = seqOfMatrices.grouped(4)
+			for(group <- groups) calculator ! group
 		}
-		case x: Int => println("final value = " + x)
+		case result: Matrix => println(result.pretty)
 		case Terminated(calculator) => context.system.shutdown
-		case _ => println("received garbage :(")
+		case _ => log.error("Dispatcher received data in error")
 	}
 }
 
@@ -57,8 +57,6 @@ object Main extends App{
 /**
 	val groups = seqOfMatrices.grouped(4)
 
-	val identity = Matrix.empty addRow Seq(1,0,0) addRow Seq(0,1,0) addRow Seq(0,0,1)
-
 	val futures = groups map { matrices => Future { matrices.reduceLeft { (left,right) => left * right } } }
 	
 	val almostDone = Future.sequence(futures)
@@ -74,6 +72,6 @@ object Main extends App{
 //TODO: Actor implementation
 	val system = ActorSystem("MatrixSystem")
 	val dispatcher = system.actorOf(Props[Dispatcher], name = "dispatcherActor")
-	dispatcher ! mat1
+	dispatcher ! seqOfMatrices
 	system.awaitTermination
 }
