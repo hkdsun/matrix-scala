@@ -20,6 +20,8 @@ object Main extends App{
 		def getTestDir = new java.io.File( "./test_cases/" ).getCanonicalPath
 		var fileName = ""
 		if(i == 1) fileName = getTestDir + "/matrices.dat"
+		if(i == 2) fileName = getTestDir + "/matrices_2.dat"
+		if(i == 3) fileName = getTestDir + "/matrices_3.dat"
 		//future test cases for i=2,3,...,n
 		require(!fileName.isEmpty, "bad test case")
 		val fileLines = io.Source.fromFile(fileName).getLines.toList
@@ -29,7 +31,7 @@ object Main extends App{
 		for(matrix <- intList) yield matrix.foldLeft(Matrix.empty)((result,nextRow) => result addRow nextRow)
 	}
 
-	val seqOfMatrices = fetchMatrices(1)
+	val seqOfMatrices = fetchMatrices(2)
 
 /*************************************
 **      FUTURE IMPLEMENTATION				**
